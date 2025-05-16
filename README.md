@@ -1,1 +1,1 @@
-# Gerador-de-ECG-Sintetico
+# Gerador-de-ECG-Sintetico-TCC
