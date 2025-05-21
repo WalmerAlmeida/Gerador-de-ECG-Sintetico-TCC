@@ -2,39 +2,22 @@
 
 #include "Arduino.h"
 
-// Variáveis iniciais
+// // Parâmetros de configuração do tempo de geração e período de amostragem
 
-//tempo de início e fim
+// Tempo de início e fim
 const float ti = 0;
 const float tf = 4;
 
-//período entre cada elemento do vetor. Obs.: passo = 1/490, em que 490Hz é a frequência do sinal PWM no pino 10,
-//Se o passo for muito grande, não consegue acompanhar bem, e se for muito pequeno distorce completamente o sinal, por conta da limitação de frequência do PWM
-//Passos muito pequenos, quando a frequência do PWM aceita(casos onde utilizamos timers com maior resolução), tornam o cálculo muito pesado, e consequentemente lentos, sem ganho de qualidade perceptível no osciloscópio
-const float passo = 0.002041;
-const float multiplicator = 1000000;  // serve para multiplicar os valores gerados pelo modelo para evitar a perda de informação causada pelo truncamento de duas casas decimais
+const float passo = 0.002041; // Período de amostragem, calculado com base na frequência do PWM gerado. Obs.: passo = 1/980, em que 980Hz é a frequência do sinal PWM no pino 6 a partir da função analogWrite(),
+const float multiplicator = 1000000;  // Serve para multiplicar os valores gerados pelo modelo para evitar a perda de informação causada pelo truncamento de duas casas decimais pela função map().
 
-//variáveis auxiliares
-float aux = 0;
-int i, j = 0;
-float sum = 0;
-int pwmValue, pwmValueP, pwmValueQRS, pwmValueT = 0;
-
-//número de repetições necessárias para executar o intervalo de tempo de ti para tf. Obs.: são todos baseados no intervalo entre ti(tempo inicial) e tf(tempo final) a cada passo
-const int N = (int)((tf - ti) / passo);
+// // Parâmetros para modificação do formato das ondas do ECG sintético
 
 //frequência cardíaca e período do ciclo cardíaco
 int HR = 75.0;
 float tc = 60.0 / HR;
 
-//vetores usados para a geração do ECG. Obs.: z guarda o resultado final do ECG para cada instante de tempo. E definindo os valores iniciais do ECG
-float p_wave[2] = { 0.0, 0.0 };
-float c_complex[2] = { 0.0, 0.0 };
-float t_wave[2] = { 0.0, 0.0 };
-float phi[2] = { 0.0, 0.0 };
-float z[2] = { 0.0, 0.0 };  //saída
-
-// // Parâmetros correspondentes a (P-, P+, Q, R, S, T-, T+)
+// Parâmetros correspondentes a (P-, P+, Q, R, S, T-, T+)
 // Normal
 float theta_i[7] = {((-1.0/3)*PI), ((-1.0/3)*PI), ((-1.0/12)*PI), 0.0, ((1.0/12)*PI), ((1.0/2)*PI), ((1.0/2)*PI)};
 float alpha_i[7] = {0.6, 0.6, -5.0, 30.0, -7.5, 0.375, 0.375};
@@ -44,12 +27,24 @@ float b_i[7] = {0.25, 0.25, 0.1, 0.1, 0.1, 0.4, 0.4};
 // float alpha_i[7] = { 0.7, 0.9, 0.6, 18.0, -0.1, 0.62, 0.55 };
 // float b_i[7] = { 0.12, 0.13, 0.12, 0.1, 0.05, 0.15, 0.17 };
 
-//variaveis inicializadas
+// Variáveis auxiliares
+float aux = 0;
+int i, j = 0;
+float sum = 0;
+int pwmValue, pwmValueP, pwmValueQRS, pwmValueT = 0;
+
 float omega, deltaTheta_i = 0;
 float maximo, minimo = 0;
 
-void setupPWM25khz();
-void PWM25khz(char pino, int valor);
+// Vetores usados para a geração do ECG. Obs.: z guarda o resultado final do ECG para cada instante de tempo.
+float p_wave[2] = { 0.0, 0.0 };
+float c_complex[2] = { 0.0, 0.0 };
+float t_wave[2] = { 0.0, 0.0 };
+float phi[2] = { 0.0, 0.0 };
+float z[2] = { 0.0, 0.0 };  // saída ECG final
+
+// Número de repetições necessárias para executar o intervalo de tempo de ti para tf.
+const int N = (int)((tf - ti) / passo);
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -59,9 +54,8 @@ float py_mod(float a, float b) {
 
 //-----------------------------------------------------------------------------------------------------
 
+// Cálculos para geração do ECG sintético a partir dos parâmetros
 void SyntheticECGGeneration() {
-
-  // Cálculos para geração do ECG sintético a partir dos parâmetros
 
   for (i = 0; i < N - 1; i++) {
 
@@ -91,7 +85,7 @@ void SyntheticECGGeneration() {
 
     z[1] = p_wave[1] + c_complex[1] + t_wave[1];
 
-    // valores máximos e mínimos das amplitudes do PWM
+    // Valores máximos e mínimos das amplitudes do PWM
     if (maximo < z[0]) {
       maximo = z[0];
     }
@@ -105,7 +99,7 @@ void SyntheticECGGeneration() {
     analogWrite(6, pwmValue);
     // Serial.println(pwmValue);
 
-    //// Pinos com as saídas das ondas características
+    // // Pinos com as saídas das ondas características
     pwmValueP = map(p_wave[0] * multiplicator, minimo * multiplicator, maximo * multiplicator, 0, 255);
     analogWrite(5, pwmValueP); // Onda característica P individual
 
@@ -135,7 +129,7 @@ void SyntheticECGGeneration() {
 void setup() {
 
   Serial.begin(9600);
-  // Definindo saída que vai para o filtro passa baixa que converte o sinal para analógico
+  // Definindo saídas que vão para o filtro passa baixa que converte o sinal para analógico
   pinMode(6, OUTPUT);
 
   pinMode(5, OUTPUT);
