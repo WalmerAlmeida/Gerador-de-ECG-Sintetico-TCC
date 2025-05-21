@@ -1,6 +1,6 @@
 # ECG Sintético com Arduino
 
-Este repositório contém o código responsável pela geração de sinais de ECG (eletrocardiograma) sintético, implementado em um microcontrolador Arduino. O projeto permite simular um traçado de ECG com base em parâmetros configuráveis, útil para testes ou ensino.
+Este repositório contém o código responsável pela geração de sinais de ECG (eletrocardiograma) sintético (syntheticECG.ino), implementado em um microcontrolador Arduino. O projeto permite simular um traçado de ECG com base em parâmetros configuráveis, útil para testes ou ensino.
 
 ## 🔧 Funcionalidades
 
