@@ -20,11 +20,11 @@ float tc = 60.0 / HR;
 // Parâmetros correspondentes a (P-, P+, Q, R, S, T-, T+)
 // Normal
 float theta_i[7] = {((-1.0/3)*PI), ((-1.0/3)*PI), ((-1.0/12)*PI), 0.0, ((1.0/12)*PI), ((1.0/2)*PI), ((1.0/2)*PI)};
-float alpha_i[7] = {0.6, 0.6, -5.0, 30.0, -7.5, 0.375, 0.375};
+float a_i[7] = {0.6, 0.6, -5.0, 30.0, -7.5, 0.375, 0.375};
 float b_i[7] = {0.25, 0.25, 0.1, 0.1, 0.1, 0.4, 0.4};
 // Fibrilação Atrial
 // float theta_i[7] = { (-5.0 / 7) * PI, (-1.0 / 2) * PI, (-1.0 / 4) * PI, 0.0, (1.0 / 30) * PI, (1.0 / 4) * PI, (7.0 / 11) * PI };
-// float alpha_i[7] = { 0.7, 0.9, 0.6, 18.0, -0.1, 0.62, 0.55 };
+// float a_i[7] = { 0.7, 0.9, 0.6, 18.0, -0.1, 0.62, 0.55 };
 // float b_i[7] = { 0.12, 0.13, 0.12, 0.1, 0.05, 0.15, 0.17 };
 
 // Variáveis auxiliares
@@ -65,21 +65,21 @@ void SyntheticECGGeneration() {
     sum = 0;
     for (j = 0; j < 2; j++) {
       deltaTheta_i = py_mod((phi[0] - theta_i[j]), (2 * PI)) - PI;
-      sum += (alpha_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
+      sum += (a_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
     }
     p_wave[1] = passo * (-sum) + p_wave[0];
 
     sum = 0;
     for (j = 2; j < 5; j++) {
       deltaTheta_i = py_mod((phi[0] - theta_i[j]), (2 * PI)) - PI;
-      sum += (alpha_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
+      sum += (a_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
     }
     c_complex[1] = passo * (-sum) + c_complex[0];
 
     sum = 0;
     for (j = 5; j < 7; j++) {
       deltaTheta_i = py_mod((phi[0] - theta_i[j]), (2 * PI)) - PI;
-      sum += (alpha_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
+      sum += (a_i[j] * deltaTheta_i) * exp(-(pow(deltaTheta_i, 2)) / (2 * (pow(b_i[j], 2))));
     }
     t_wave[1] = passo * (-sum) + t_wave[0];
 
